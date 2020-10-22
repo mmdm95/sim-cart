@@ -1,0 +1,94 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "4c16c7649b22904b36b8f27e0953f3e9",
+    "packages": [
+        {
+            "name": "mmdm/sim-cookie",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mmdm95/sim-cookie.git",
+                "reference": "b391f245fbc9d62f9d59d0344001c395ae2b20c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mmdm95/sim-cookie/zipball/b391f245fbc9d62f9d59d0344001c395ae2b20c4",
+                "reference": "b391f245fbc9d62f9d59d0344001c395ae2b20c4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "mmdm/sim-crypt": "^1.0",
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sim\\Cookie\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "MMDM",
+                    "email": "mmdehghan95@gmail.com"
+                }
+            ],
+            "description": "A simple yet nice cookie management library",
+            "time": "2020-10-12T14:31:51+00:00"
+        },
+        {
+            "name": "mmdm/sim-crypt",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mmdm95/sim-crypt.git",
+                "reference": "7146a94e9e1e1fd558f3ca1cab50e31a18ec4ee5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mmdm95/sim-crypt/zipball/7146a94e9e1e1fd558f3ca1cab50e31a18ec4ee5",
+                "reference": "7146a94e9e1e1fd558f3ca1cab50e31a18ec4ee5",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sim\\Crypt\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "MMDM",
+                    "email": "mmdehghan95@gmail.com"
+                }
+            ],
+            "description": "A simple yet nice encryption/decryption library",
+            "time": "2020-10-05T22:15:19+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}
