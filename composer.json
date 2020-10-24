@@ -9,7 +9,15 @@
       "email": "mmdehghan95@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Sim\\Cart\\": "src/",
+      "Sim\\Cart\\Config\\": "src/_Config/"
+    }
+  },
   "require": {
+    "ext-pdo": "*",
+    "ext-json": "*",
     "mmdm/sim-cookie": "^1.0"
   }
 }
