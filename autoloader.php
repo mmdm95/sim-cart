@@ -8,6 +8,9 @@ spl_autoload_register(function ($class) {
     $namespace = 'Sim\Cart';
 
     $prefixes = [
+        "{$namespace}\\Config\\" => [
+            __DIR__ . '/src/_Config',
+        ],
         "{$namespace}\\" => [
             __DIR__ . '/src',
         ],
