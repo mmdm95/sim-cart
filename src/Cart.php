@@ -178,6 +178,66 @@ class Cart implements ICart
     /**
      * {@inheritdoc}
      */
+    public function totalPrice(): float
+    {
+        return $this->getTotal('price');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function totalDiscountedPrice(): float
+    {
+        return $this->getTotal('discounted_price');
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws IDBException
+     */
+    public function discountedPercentage(string $item_code): float
+    {
+        $item = $this->getItem($item_code);
+        $price = (float)($item['price'] ?? 0.0);
+        $discountedPrice = (float)($item['discounted_price'] ?? 0.0);
+
+        // it should be == instead of ===
+        if (0 == $price) return 0;
+
+        $priceDiff = abs($price - $discountedPrice);
+        return ($priceDiff / $price) * 100;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws IDBException
+     */
+    public function totalDiscountedPercentage(int $decimal_numbers = 2, bool $round = false): float
+    {
+        $items = $this->getItems();
+        $itemsLen = count($items);
+
+        // is there is no item, we have 0 percentage discount
+        if (0 === $itemsLen) return 0.0;
+
+        $totalPercentage = 0.0;
+        foreach ($items as $code => $item) {
+            $totalPercentage += $this->discountedPercentage($code);
+        }
+
+        $totalPercentageAvg = number_format($totalPercentage / $itemsLen, $decimal_numbers);
+
+        // if it needed to round
+        if ($round) {
+            $totalPercentageAvg = round($totalPercentageAvg);
+        }
+
+        return $totalPercentageAvg;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function store()
     {
         $setCookie = new SetCookie(
@@ -207,7 +267,7 @@ class Cart implements ICart
         // there is something there but we don't know what it is
         $data = json_decode($data, true);
 
-        // it should array or we have nothing to do with it
+        // it should be array or we have nothing to do with it
         if (!is_array($data)) return $this;
 
         // add it to cart class
@@ -226,6 +286,20 @@ class Cart implements ICart
         $this->storage->remove($this->getCartName());
         $this->clearItems();
         return $this;
+    }
+
+    /**
+     * @param $key
+     * @return float
+     */
+    protected function getTotal($key): float
+    {
+        $total = 0.0;
+        foreach ($this->getItems() as $item) {
+            $total += (float)($item[$key] ?? 0.0);
+        }
+
+        return $total;
     }
 
     /**

@@ -79,6 +79,29 @@ interface ICart
     public function hasItemWithCode(string $item_code): bool;
 
     /**
+     * @return float
+     */
+    public function totalPrice(): float;
+
+    /**
+     * @return float
+     */
+    public function totalDiscountedPrice(): float;
+
+    /**
+     * @param string $item_code
+     * @return float
+     */
+    public function discountedPercentage(string $item_code): float;
+
+    /**
+     * @param int $decimal_numbers
+     * @param bool $round
+     * @return float
+     */
+    public function totalDiscountedPercentage(int $decimal_numbers = 2, bool $round = false): float;
+
+    /**
      * Store cart to defined storage
      *
      * @return static
