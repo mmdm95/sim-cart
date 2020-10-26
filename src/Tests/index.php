@@ -25,13 +25,27 @@ try {
     //-----
     $cookieStorage = new \Sim\Cookie\Cookie(new \Sim\Crypt\Crypt($mainCryptKey, $assuredCryptKey));
     //-----
-    $item1 = '1234';
+    // some fake products' code
+//    $item1 = '1234';
+//    $item2 = '2345';
+//    $item3 = '123';
+
     $cart = new \Sim\Cart\Cart($pdo, $cookieStorage);
 
 //    $cart->utils()->runConfig();
 
 //    $cart->add($item1);
+//    $cart->add($item2);
+//    $cart->add($item3);
 //    var_dump($cart->getItems());
+
+//    var_dump($cart->totalPrice());
+//    var_dump($cart->totalDiscountedPrice());
+//    var_dump($cart->discountedPercentage($item1));
+//    var_dump($cart->discountedPercentage($item2));
+//    var_dump($cart->discountedPercentage($item3));
+//    var_dump($cart->totalDiscountedPercentage());
+//    var_dump($cart->totalDiscountedPercentage(2, true));
 
 //    $cart->update($item1, [
 //        'qnt' => 4
