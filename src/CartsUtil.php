@@ -157,6 +157,9 @@ class CartsUtil implements ICartsUtil
         // unset created_at field
         unset($extra_parameters[$cartColumns['created_at']]);
 
+        // delete all expired carts for specific user
+        $this->deleteExpiredCarts($cart->getCartName(), $user_id);
+
         $isUpdate = $this->db->count(
                 $this->tables[$this->carts_key],
                 $where,
@@ -298,6 +301,9 @@ class CartsUtil implements ICartsUtil
         $sql .= "WHERE {$this->db->quoteName('c')}.{$cartColumns['name']}=:__cart_name_ ";
         $sql .= "AND {$this->db->quoteName('c')}.{$cartColumns['user_id']}=:__cart_user_id_";
 
+        // delete all expired carts for specific user
+        $this->deleteExpiredCarts($cart->getCartName(), $user_id);
+
         $stmt = $this->db->exec($sql, [
             '__cart_name_' => $cart_name,
             '__cart_user_id_' => $user_id,
@@ -349,10 +355,31 @@ class CartsUtil implements ICartsUtil
 
         return $this->db->delete(
             $this->tables[$this->carts_key],
-            "{$cartColumns['name']}=:__cart_old_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
+            "{$cartColumns['name']}=:__cart_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
             [
-                '__cart_old_name_' => $cart_name,
+                '__cart_name_' => $cart_name,
                 '__cart_user_id_' => $user_id,
+            ]
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws IDBException
+     */
+    public function deleteExpiredCarts(string $cart_name, int $user_id): bool
+    {
+        $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
+
+        return $this->db->delete(
+            $this->tables[$this->carts_key],
+            "{$cartColumns['name']}=:__cart_name_ " .
+            "AND {$cartColumns['user_id']}=:__cart_user_id_" .
+            "AND {$cartColumns['expire_at']}<:__cart_expired_",
+            [
+                '__cart_name_' => $cart_name,
+                '__cart_user_id_' => $user_id,
+                '__cart_expired_' => time(),
             ]
         );
     }
