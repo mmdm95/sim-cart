@@ -71,7 +71,7 @@ try {
 //    $cart->setCartName('forth');
 //    $cart->utils()->save($cart, 1, 1);
 
-//    $cart->utils()->fetch('default', 1, $cart);
+//    $cart->utils()->fetch($cart, 1);
 //    var_dump($cart->getItems());
 } catch (\Sim\Cart\Exceptions\CartMaxCountException $e) {
     echo $e->getMessage();

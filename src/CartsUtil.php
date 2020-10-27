@@ -279,7 +279,7 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function fetch(string $cart_name, int $user_id, ICart &$cart)
+    public function fetch(ICart &$cart, int $user_id)
     {
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
         $cartItemColumns = $this->config_parser->getTablesColumn($this->cart_item_key);
@@ -305,7 +305,7 @@ class CartsUtil implements ICartsUtil
         $this->deleteExpiredCarts($cart->getCartName(), $user_id);
 
         $stmt = $this->db->exec($sql, [
-            '__cart_name_' => $cart_name,
+            '__cart_name_' => $cart->getCartName(),
             '__cart_user_id_' => $user_id,
         ]);
         $cartResult = $stmt->fetchAll(PDO::FETCH_ASSOC);

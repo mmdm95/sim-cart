@@ -28,12 +28,11 @@ interface ICartsUtil
     ): bool;
 
     /**
-     * @param string $cart_name
-     * @param int $user_id
      * @param ICart $cart
+     * @param int $user_id
      * @return static
      */
-    public function fetch(string $cart_name, int $user_id, ICart &$cart);
+    public function fetch(ICart &$cart, int $user_id);
 
     /**
      * @param string $cart_name
