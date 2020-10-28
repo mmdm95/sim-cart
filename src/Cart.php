@@ -114,13 +114,7 @@ class Cart implements ICart
     {
         $item = $this->cart_util->getItem($item_code);
         if (!empty($item)) {
-            $item_info = $this->normalizeQuantity($item, $item_info);
-            if ($item_info['qnt'] > 0) {
-                $item['qnt'] = $item_info['qnt'];
-                $this->items[$item_code] = array_merge($item_info, $item);
-            } else {
-                $this->remove($item_code);
-            }
+            $this->addItem($item_code, $item, $item_info);
         }
         return $this;
     }
@@ -132,13 +126,7 @@ class Cart implements ICart
     public function update(string $item_code, array $item_info = null)
     {
         $item = $this->getItem($item_code);
-        $item_info = $this->normalizeQuantity($item, $item_info);
-        if ($item_info['qnt'] > 0) {
-            $item['qnt'] = $item_info['qnt'];
-            $this->items[$item_code] = array_merge($item_info, $item);
-        } else {
-            $this->remove($item_code);
-        }
+        $this->addItem($item_code, $item, $item_info);
     }
 
     /**
@@ -325,6 +313,22 @@ class Cart implements ICart
     protected function getHashedName(): string
     {
         return md5($this->getCartName() . '-' . $this->utils()->getUserId());
+    }
+
+    /**
+     * @param string $item_code
+     * @param $item
+     * @param array $item_info
+     */
+    protected function addItem(string $item_code, $item, array $item_info)
+    {
+        $item_info = $this->normalizeQuantity($item, $item_info);
+        if ($item_info['qnt'] > 0) {
+            $item['qnt'] = $item_info['qnt'];
+            $this->items[$item_code] = array_merge($item_info, $item);
+        } else {
+            $this->remove($item_code);
+        }
     }
 
     /**
