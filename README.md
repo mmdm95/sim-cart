@@ -129,29 +129,7 @@ in `general` and `unicode` please see
     
 ## How to use
 
-First of all you need a `cookie` class like below:
-
-```php
-$cookieStorage = new \Sim\Cookie\Cookie();
-```
-
-[Optionally But Highly Recommended] You need two keys to protect 
-stored data in cookie. These two keys should be two base64 coded 
-strings. Just generate two passwords and encode them to base64 
-strings. For more info about these two keys see 
-[this link][crypt_library]
-
-```php
-// this is what you have for protecting your data
-$cookieStorage = new \Sim\Cookie\Cookie(
-    new \Sim\Crypt\Crypt(
-        $mainCryptKey,
-        $assuredCryptKey
-    )
-);
-```
-
-[Optionally] Second of all you need a `PDO` connection like below:
+First of all you need a `PDO` connection like below:
 
 ```php
 $host = '127.0.0.1';
@@ -173,14 +151,35 @@ try {
 }
 ```
 
+Second you need a `cookie` class like below:
+
+```php
+$cookieStorage = new \Sim\Cookie\Cookie();
+```
+
+[Optionally But Highly Recommended] You need two keys to protect 
+stored data in cookie. These two keys should be two base64 coded 
+strings. Just generate two passwords and encode them to base64 
+strings. For more info about these two keys see 
+[this link][crypt_library]
+
+```php
+// this is what you have for protecting your data
+$cookieStorage = new \Sim\Cookie\Cookie(
+    new \Sim\Crypt\Crypt(
+        $mainCryptKey,
+        $assuredCryptKey
+    )
+);
+```
+
 ### Instantiate cart library
 
 ```php
 $cookieStorage = new \Sim\Cookie\Cookie(new \Sim\Crypt\Crypt($mainCryptKey, $assuredCryptKey));
 
-// we don't need pdo connection and a user, 
-// so we don't pass any of them
-$cart = new \Sim\Cart\Cart($cookieStorage);
+// we a user, so we don't pass it
+$cart = new \Sim\Cart\Cart($pdo, $cookieStorage);
 
 // use cart methods
 $cart->add('product_code');
