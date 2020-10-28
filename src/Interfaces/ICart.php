@@ -89,6 +89,16 @@ interface ICart
     public function totalDiscountedPrice(): float;
 
     /**
+     * @return float
+     */
+    public function totalPriceWithTax(): float;
+
+    /**
+     * @return float
+     */
+    public function totalDiscountedPriceWithTax(): float;
+
+    /**
      * @param string $key
      * @return float
      */

@@ -58,6 +58,7 @@ return [
                 'max_cart_count' => 'max_cart_count',
                 'price' => 'price',
                 'discounted_price' => 'discounted_price',
+                'tax_rate' => 'tax_rate',
                 'is_available' => 'is_available',
             ],
             'types' => [
@@ -68,6 +69,7 @@ return [
                 'max_cart_count' => 'INT(11) UNSIGNED NOT NULL',
                 'price' => 'BIGINT(20) UNSIGNED NOT NULL',
                 'discounted_price' => 'BIGINT(20) UNSIGNED NOT NULL',
+                'tax_rate' => 'DECIMAL (5, 2) UNSIGNED NOT NULL DEFAULT 0',
                 'is_available' => 'TINYINT(1) UNSIGNED NOT NULL DEFAULT 1',
             ],
             'constraints' => [

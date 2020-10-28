@@ -199,9 +199,25 @@ class Cart implements ICart
     /**
      * {@inheritdoc}
      */
+    public function totalPriceWithTax(): float
+    {
+        return $this->getTotal('price', true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function totalDiscountedPrice(): float
     {
         return $this->getTotal('discounted_price');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function totalDiscountedPriceWithTax(): float
+    {
+        return $this->getTotal('discounted_price', true);
     }
 
     /**
@@ -322,13 +338,19 @@ class Cart implements ICart
 
     /**
      * @param $key
+     * @param bool $calculate_tax
      * @return float
      */
-    protected function getTotal($key): float
+    protected function getTotal($key, bool $calculate_tax = false): float
     {
         $total = 0.0;
         foreach ($this->getItems() as $item) {
-            $total += (float)($item[$key] ?? 0.0);
+            $amount = (float)($item[$key] ?? 0.0);
+            if ($calculate_tax) {
+                $amount += ((float)((float)($item['tax_rate'] ?? 0.0) * $amount)) / 100.0;
+            }
+
+            $total += $amount;
         }
 
         return $total;
