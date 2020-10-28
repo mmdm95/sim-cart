@@ -318,9 +318,9 @@ class Cart implements ICart
     /**
      * @param string $item_code
      * @param $item
-     * @param array $item_info
+     * @param array|null $item_info
      */
-    protected function addItem(string $item_code, $item, array $item_info)
+    protected function addItem(string $item_code, $item, ?array $item_info)
     {
         $item_info = $this->normalizeQuantity($item, $item_info);
         if ($item_info['qnt'] > 0) {
