@@ -315,7 +315,7 @@ class Cart implements ICart
      */
     public function destroy()
     {
-        $this->storage->remove($this->getCartName());
+        $this->storage->remove($this->getHashedName());
         $this->clearItems();
         return $this;
     }
