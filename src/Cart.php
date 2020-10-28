@@ -55,7 +55,7 @@ class Cart implements ICart
         $this->storage = $cookie_storage;
 
         // if pdo connection is not null
-        if (!is_null($pdo_instance) && !is_null($user_id)) {
+        if (!is_null($pdo_instance)) {
             $this->cart_util = new CartsUtil($pdo_instance, $this, $user_id, $config);
         }
     }

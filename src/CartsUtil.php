@@ -46,7 +46,7 @@ class CartsUtil implements ICartsUtil
     /**
      * @var int
      */
-    protected $user_id;
+    protected $user_id = 0;
 
     /********** table keys **********/
 
@@ -83,14 +83,16 @@ class CartsUtil implements ICartsUtil
      * @param array|null $config
      * @throws IDBException
      */
-    public function __construct(PDO $pdo_instance, ICart &$cart, int $user_id, ?array $config = null)
+    public function __construct(PDO $pdo_instance, ICart &$cart, ?int $user_id, ?array $config = null)
     {
         $this->pdo = $pdo_instance;
         $this->db = new DB($pdo_instance);
 
         // set cart and user id
         $this->cart = $cart;
-        $this->user_id = $user_id;
+        if (!is_null($user_id)) {
+            $this->setUserId($user_id);
+        }
 
         // load default config from _Config dir
         $this->default_config = include __DIR__ . '/_Config/config.php';
@@ -145,6 +147,15 @@ class CartsUtil implements ICartsUtil
     /**
      * {@inheritdoc}
      */
+    public function setUserId(int $user_id)
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getUserId(): int
     {
         return $this->user_id;
@@ -162,6 +173,9 @@ class CartsUtil implements ICartsUtil
         array $bind_values = []
     ): bool
     {
+        // if there no user, there is no reason to go through all conditions
+        if ($this->getUserId() === 0) return false;
+
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
         $cartItemColumns = $this->config_parser->getTablesColumn($this->cart_item_key);
         $productPropertyColumns = $this->config_parser->getTablesColumn($this->product_property_key);
@@ -311,6 +325,9 @@ class CartsUtil implements ICartsUtil
      */
     public function fetch(bool $append_to_previous_items = false)
     {
+        // if there no user, there is no reason to go through all conditions
+        if ($this->getUserId() === 0) return $this;
+
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
         $cartItemColumns = $this->config_parser->getTablesColumn($this->cart_item_key);
         $productPropertyColumns = $this->config_parser->getTablesColumn($this->product_property_key);
@@ -388,6 +405,9 @@ class CartsUtil implements ICartsUtil
      */
     public function delete(string $cart_name): bool
     {
+        // if there no user, there is no reason to go through all conditions
+        if ($this->getUserId() === 0) return false;
+
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
 
         return $this->db->delete(
@@ -406,6 +426,9 @@ class CartsUtil implements ICartsUtil
      */
     public function deleteExpiredCarts(string $cart_name): bool
     {
+        // if there no user, there is no reason to go through all conditions
+        if ($this->getUserId() === 0) return false;
+
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
 
         return $this->db->delete(
@@ -430,6 +453,9 @@ class CartsUtil implements ICartsUtil
         string $new_cart_name
     ): bool
     {
+        // if there no user, there is no reason to go through all conditions
+        if ($this->getUserId() === 0) return false;
+
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
 
         return $this->db->update(
