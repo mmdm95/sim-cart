@@ -424,7 +424,7 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function deleteExpiredCarts(string $cart_name): bool
+    public function deleteExpiredCarts(): bool
     {
         // if there no user, there is no reason to go through all conditions
         if ($this->getUserId() === 0) return false;
@@ -433,11 +433,9 @@ class CartsUtil implements ICartsUtil
 
         return $this->db->delete(
             $this->tables[$this->carts_key],
-            "{$cartColumns['name']}=:__cart_name_ " .
-            "AND {$cartColumns['user_id']}=:__cart_user_id_" .
+            "{$cartColumns['user_id']}=:__cart_user_id_" .
             "AND {$cartColumns['expire_at']}<:__cart_expired_",
             [
-                '__cart_name_' => $cart_name,
                 '__cart_user_id_' => $this->user_id,
                 '__cart_expired_' => time(),
             ]

@@ -52,10 +52,9 @@ interface ICartsUtil
     public function delete(string $cart_name): bool;
 
     /**
-     * @param string $cart_name
      * @return bool
      */
-    public function deleteExpiredCarts(string $cart_name): bool;
+    public function deleteExpiredCarts(): bool;
 
     /**
      * @param string $old_cart_name
