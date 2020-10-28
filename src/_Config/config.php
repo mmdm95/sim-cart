@@ -67,9 +67,9 @@ return [
                 'product_id' => 'INT(11) UNSIGNED NOT NULL',
                 'stock_count' => 'INT(11) UNSIGNED NOT NULL',
                 'max_cart_count' => 'INT(11) UNSIGNED NOT NULL',
-                'price' => 'BIGINT(20) UNSIGNED NOT NULL',
-                'discounted_price' => 'BIGINT(20) UNSIGNED NOT NULL',
-                'tax_rate' => 'DECIMAL (5, 2) UNSIGNED NOT NULL DEFAULT 0',
+                'price' => 'DECIMAL(23, 3) UNSIGNED NOT NULL',
+                'discounted_price' => 'DECIMAL(23, 3) UNSIGNED NOT NULL',
+                'tax_rate' => 'DECIMAL(5, 2) UNSIGNED NOT NULL DEFAULT 0',
                 'is_available' => 'TINYINT(1) UNSIGNED NOT NULL DEFAULT 1',
             ],
             'constraints' => [
