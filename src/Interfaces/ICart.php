@@ -27,9 +27,9 @@ interface ICart
     public function getExpiration(): int;
 
     /**
-     * @return ICartsUtil
+     * @return ICartsUtil|null
      */
-    public function utils(): ICartsUtil;
+    public function utils(): ?ICartsUtil;
 
     /**
      * @param string $item_code
@@ -87,6 +87,12 @@ interface ICart
      * @return float
      */
     public function totalDiscountedPrice(): float;
+
+    /**
+     * @param string $key
+     * @return float
+     */
+    public function totalAttributeValue(string $key): float;
 
     /**
      * @param string $item_code

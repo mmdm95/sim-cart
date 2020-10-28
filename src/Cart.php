@@ -12,9 +12,9 @@ use Sim\Cookie\SetCookie;
 class Cart implements ICart
 {
     /**
-     * @var ICartsUtil
+     * @var ICartsUtil|null
      */
-    protected $cart_util;
+    protected $cart_util = null;
 
     /**
      * @var array - array of ICartItem
@@ -39,15 +39,25 @@ class Cart implements ICart
 
     /**
      * Cart constructor.
-     * @param PDO $pdo_instance
+     * @param PDO|null $pdo_instance
      * @param ICookie $cookie_storage
+     * @param int $user_id
      * @param array|null $config
      * @throws IDBException
      */
-    public function __construct(PDO $pdo_instance, ICookie $cookie_storage, ?array $config = null)
+    public function __construct(
+        ?PDO $pdo_instance,
+        ICookie $cookie_storage,
+        int $user_id,
+        ?array $config = null
+    )
     {
         $this->storage = $cookie_storage;
-        $this->cart_util = new CartsUtil($pdo_instance, $config);
+
+        // if pdo connection is not null
+        if (!is_null($pdo_instance)) {
+            $this->cart_util = new CartsUtil($pdo_instance, $this, $user_id, $config);
+        }
     }
 
     /**
@@ -88,7 +98,10 @@ class Cart implements ICart
         return $this->storage_expiration_time;
     }
 
-    public function utils(): ICartsUtil
+    /**
+     * {@inheritdoc}
+     */
+    public function utils(): ?ICartsUtil
     {
         return $this->cart_util;
     }
@@ -193,6 +206,15 @@ class Cart implements ICart
 
     /**
      * {@inheritdoc}
+     */
+    public function totalAttributeValue(string $key): float
+    {
+        if ('' === $key) return 0.0;
+        return $this->getTotal($key);
+    }
+
+    /**
+     * {@inheritdoc}
      * @throws IDBException
      */
     public function discountedPercentage(string $item_code): float
@@ -241,9 +263,9 @@ class Cart implements ICart
     public function store()
     {
         $setCookie = new SetCookie(
-            $this->getCartName(),
+            $this->getHashedName(),
             json_encode($this->getItems()),
-            time() + $this->storage_expiration_time,
+            time() + $this->getExpiration(),
             '/',
             null,
             null,
@@ -259,7 +281,7 @@ class Cart implements ICart
      */
     public function restore()
     {
-        $data = $this->storage->get($this->getCartName());
+        $data = $this->storage->get($this->getHashedName());
 
         // if there is a cookie value
         if (is_null($data)) return $this;
@@ -286,6 +308,14 @@ class Cart implements ICart
         $this->storage->remove($this->getCartName());
         $this->clearItems();
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getHashedName(): string
+    {
+        return md5($this->getCartName() . '-' . $this->utils()->getUserId());
     }
 
     /**

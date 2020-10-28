@@ -10,8 +10,16 @@ interface ICartsUtil
     public function runConfig();
 
     /**
-     * @param ICart $cart
-     * @param int $user_id
+     * @return ICart
+     */
+    public function getCart(): ICart;
+
+    /**
+     * @return int
+     */
+    public function getUserId(): int;
+
+    /**
      * @param int $max_stored_cart
      * @param array $extra_parameters
      * @param string|null $extra_where
@@ -19,8 +27,6 @@ interface ICartsUtil
      * @return bool
      */
     public function save(
-        ICart $cart,
-        int $user_id,
         int $max_stored_cart = PHP_INT_MAX,
         array $extra_parameters = [],
         string $extra_where = null,
@@ -28,34 +34,29 @@ interface ICartsUtil
     ): bool;
 
     /**
-     * @param ICart $cart
-     * @param int $user_id
+     * @param bool $append_to_previous_items
      * @return static
      */
-    public function fetch(ICart &$cart, int $user_id);
+    public function fetch(bool $append_to_previous_items = false);
 
     /**
      * @param string $cart_name
-     * @param int $user_id
      * @return bool
      */
-    public function delete(string $cart_name, int $user_id): bool;
+    public function delete(string $cart_name): bool;
 
     /**
      * @param string $cart_name
-     * @param int $user_id
      * @return bool
      */
-    public function deleteExpiredCarts(string $cart_name, int $user_id): bool;
+    public function deleteExpiredCarts(string $cart_name): bool;
 
     /**
-     * @param int $user_id
      * @param string $old_cart_name
      * @param string $new_cart_name
      * @return bool
      */
     public function changeName(
-        int $user_id,
         string $old_cart_name,
         string $new_cart_name
     ): bool;

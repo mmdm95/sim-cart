@@ -38,6 +38,16 @@ class CartsUtil implements ICartsUtil
      */
     protected $config_parser;
 
+    /**
+     * @var ICart
+     */
+    protected $cart;
+
+    /**
+     * @var int
+     */
+    protected $user_id;
+
     /********** table keys **********/
 
     /**
@@ -68,13 +78,19 @@ class CartsUtil implements ICartsUtil
     /**
      * Carts constructor.
      * @param PDO $pdo_instance
+     * @param ICart $cart
+     * @param int $user_id
      * @param array|null $config
      * @throws IDBException
      */
-    public function __construct(PDO $pdo_instance, ?array $config = null)
+    public function __construct(PDO $pdo_instance, ICart &$cart, int $user_id, ?array $config = null)
     {
         $this->pdo = $pdo_instance;
         $this->db = new DB($pdo_instance);
+
+        // set cart and user id
+        $this->cart = $cart;
+        $this->user_id = $user_id;
 
         // load default config from _Config dir
         $this->default_config = include __DIR__ . '/_Config/config.php';
@@ -120,12 +136,26 @@ class CartsUtil implements ICartsUtil
 
     /**
      * {@inheritdoc}
+     */
+    public function getCart(): ICart
+    {
+        return $this->cart;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * {@inheritdoc}
      * @throws IDBException
      * @throws CartMaxCountException
      */
     public function save(
-        ICart $cart,
-        int $user_id,
         int $max_stored_cart = PHP_INT_MAX,
         array $extra_parameters = [],
         string $extra_where = null,
@@ -143,8 +173,8 @@ class CartsUtil implements ICartsUtil
         }
 
         $bindValues = [
-            '__cart_name_' => $cart->getCartName(),
-            '__cart_user_id_' => $user_id,
+            '__cart_name_' => $this->cart->getCartName(),
+            '__cart_user_id_' => $this->user_id,
         ];
 
         // local global result status
@@ -158,7 +188,7 @@ class CartsUtil implements ICartsUtil
         unset($extra_parameters[$cartColumns['created_at']]);
 
         // delete all expired carts for specific user
-        $this->deleteExpiredCarts($cart->getCartName(), $user_id);
+        $this->deleteExpiredCarts($this->cart->getCartName());
 
         $isUpdate = $this->db->count(
                 $this->tables[$this->carts_key],
@@ -181,7 +211,7 @@ class CartsUtil implements ICartsUtil
                 $this->tables[$this->carts_key],
                 "{$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_",
                 [
-                    '__cart_user_id_' => $user_id,
+                    '__cart_user_id_' => $this->user_id,
                 ]
             );
             if ($userCartCount < $max_stored_cart) {
@@ -189,10 +219,10 @@ class CartsUtil implements ICartsUtil
                 $status = $status && $this->db->insert(
                         $this->tables[$this->carts_key],
                         array_merge([
-                            $cartColumns['name'] => $cart->getCartName(),
-                            $cartColumns['user_id'] => $user_id,
+                            $cartColumns['name'] => $this->cart->getCartName(),
+                            $cartColumns['user_id'] => $this->user_id,
                             $cartColumns['created_at'] => time(),
-                            $cartColumns['expire_at'] => $cart->getExpiration(),
+                            $cartColumns['expire_at'] => time() + $this->cart->getExpiration(),
                         ], $extra_parameters)
                     );
             } else {
@@ -214,8 +244,8 @@ class CartsUtil implements ICartsUtil
                 $where,
                 $cartColumns['id'],
                 array_merge([
-                    '__cart_name_' => $extra_parameters[$cartColumns['name']] ?? $cart->getCartName(),
-                    '__cart_user_id_' => $user_id,
+                    '__cart_name_' => $extra_parameters[$cartColumns['name']] ?? $this->cart->getCartName(),
+                    '__cart_user_id_' => $this->user_id,
                 ], $bind_values)
             )[0][$cartColumns['id']] ?? null;
 
@@ -232,7 +262,7 @@ class CartsUtil implements ICartsUtil
             );
 
         // insert cart items
-        $items = $cart->getItems();
+        $items = $this->cart->getItems();
 
         foreach ($items as $id => $item) {
             // create where and bind values parameters
@@ -279,7 +309,7 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function fetch(ICart &$cart, int $user_id)
+    public function fetch(bool $append_to_previous_items = false)
     {
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
         $cartItemColumns = $this->config_parser->getTablesColumn($this->cart_item_key);
@@ -302,16 +332,18 @@ class CartsUtil implements ICartsUtil
         $sql .= "AND {$this->db->quoteName('c')}.{$cartColumns['user_id']}=:__cart_user_id_";
 
         // delete all expired carts for specific user
-        $this->deleteExpiredCarts($cart->getCartName(), $user_id);
+        $this->deleteExpiredCarts($this->cart->getCartName());
 
         $stmt = $this->db->exec($sql, [
-            '__cart_name_' => $cart->getCartName(),
-            '__cart_user_id_' => $user_id,
+            '__cart_name_' => $this->cart->getCartName(),
+            '__cart_user_id_' => $this->user_id,
         ]);
         $cartResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // remove all items from cart
-        $cart->clearItems();
+        if (!$append_to_previous_items) {
+            // remove all items from cart
+            $this->cart->clearItems();
+        }
 
         if (count($cartResult)) {
             foreach ($cartResult as $key => $cartItem) {
@@ -337,8 +369,13 @@ class CartsUtil implements ICartsUtil
                     }
                 }
 
+                // if we have item in cart, we should merge new and previous item together
+                if ($this->cart->hasItemWithCode($cartItem['code'])) {
+                    $newCartItem = array_merge($this->cart->getItem($cartItem['code']), $newCartItem);
+                }
+
                 // add cart item to cart collection
-                $cart->add($cartItem['code'], $newCartItem);
+                $this->cart->add($cartItem['code'], $newCartItem);
             }
         }
 
@@ -349,7 +386,7 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function delete(string $cart_name, int $user_id): bool
+    public function delete(string $cart_name): bool
     {
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
 
@@ -358,7 +395,7 @@ class CartsUtil implements ICartsUtil
             "{$cartColumns['name']}=:__cart_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
             [
                 '__cart_name_' => $cart_name,
-                '__cart_user_id_' => $user_id,
+                '__cart_user_id_' => $this->user_id,
             ]
         );
     }
@@ -367,7 +404,7 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function deleteExpiredCarts(string $cart_name, int $user_id): bool
+    public function deleteExpiredCarts(string $cart_name): bool
     {
         $cartColumns = $this->config_parser->getTablesColumn($this->carts_key);
 
@@ -378,7 +415,7 @@ class CartsUtil implements ICartsUtil
             "AND {$cartColumns['expire_at']}<:__cart_expired_",
             [
                 '__cart_name_' => $cart_name,
-                '__cart_user_id_' => $user_id,
+                '__cart_user_id_' => $this->user_id,
                 '__cart_expired_' => time(),
             ]
         );
@@ -389,7 +426,6 @@ class CartsUtil implements ICartsUtil
      * @throws IDBException
      */
     public function changeName(
-        int $user_id,
         string $old_cart_name,
         string $new_cart_name
     ): bool
@@ -404,7 +440,7 @@ class CartsUtil implements ICartsUtil
             "{$cartColumns['name']}=:__cart_old_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
             [
                 '__cart_old_name_' => $old_cart_name,
-                '__cart_user_id_' => $user_id,
+                '__cart_user_id_' => $this->user_id,
             ]
         );
     }
