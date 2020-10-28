@@ -333,20 +333,20 @@ class CartsUtil implements ICartsUtil
         $productPropertyColumns = $this->config_parser->getTablesColumn($this->product_property_key);
 
         // a big fat join through carts, cart_item and product_property tables
-        $sql = "SELECT {$this->db->quoteName('ci')}.{$cartItemColumns['qnt']} AS {$this->db->quoteName('qnt')}, ";
-        $sql .= "{$this->db->quoteName('c')}.{$cartColumns['name']} AS {$this->db->quoteName('name')}, ";
-        $sql .= "{$this->db->quoteName('pp')}.{$productPropertyColumns['code']} AS {$this->db->quoteName('code')}, ";
-        $sql .= "{$this->db->quoteName('pp')}.{$productPropertyColumns['stock_count']} AS {$this->db->quoteName('stock_count')}, ";
-        $sql .= "{$this->db->quoteName('pp')}.{$productPropertyColumns['max_cart_count']} AS {$this->db->quoteName('max_cart_count')}, ";
-        $sql .= "{$this->db->quoteName('pp')}.{$productPropertyColumns['price']} AS {$this->db->quoteName('price')}, ";
-        $sql .= "{$this->db->quoteName('pp')}.{$productPropertyColumns['discounted_price']} AS {$this->db->quoteName('discounted_price')}, pp.* ";
+        $sql = "SELECT {$this->db->quoteName('ci')}.{$this->db->quoteName($cartItemColumns['qnt'])} AS {$this->db->quoteName('qnt')}, ";
+        $sql .= "{$this->db->quoteName('c')}.{$this->db->quoteName($cartColumns['name'])} AS {$this->db->quoteName('name')}, ";
+        $sql .= "{$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['code'])} AS {$this->db->quoteName('code')}, ";
+        $sql .= "{$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['stock_count'])} AS {$this->db->quoteName('stock_count')}, ";
+        $sql .= "{$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['max_cart_count'])} AS {$this->db->quoteName('max_cart_count')}, ";
+        $sql .= "{$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['price'])} AS {$this->db->quoteName('price')}, ";
+        $sql .= "{$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['discounted_price'])} AS {$this->db->quoteName('discounted_price')}, pp.* ";
         $sql .= "FROM {$this->db->quoteName($this->cart_item_key)} AS {$this->db->quoteName('ci')} ";
         $sql .= "INNER JOIN {$this->db->quoteName($this->carts_key)} AS {$this->db->quoteName('c')} ";
-        $sql .= "ON {$this->db->quoteName('c')}.{$cartColumns['id']}={$this->db->quoteName('ci')}.{$cartItemColumns['cart_id']} ";
+        $sql .= "ON {$this->db->quoteName('c')}.{$this->db->quoteName($cartColumns['id'])}={$this->db->quoteName('ci')}.{$this->db->quoteName($cartItemColumns['cart_id'])} ";
         $sql .= "INNER JOIN {$this->db->quoteName($this->product_property_key)} AS {$this->db->quoteName('pp')} ";
-        $sql .= "ON {$this->db->quoteName('ci')}.{$cartItemColumns['product_property_id']}={$this->db->quoteName('pp')}.{$productPropertyColumns['id']} ";
-        $sql .= "WHERE {$this->db->quoteName('c')}.{$cartColumns['name']}=:__cart_name_ ";
-        $sql .= "AND {$this->db->quoteName('c')}.{$cartColumns['user_id']}=:__cart_user_id_";
+        $sql .= "ON {$this->db->quoteName('ci')}.{$this->db->quoteName($cartItemColumns['product_property_id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['id'])} ";
+        $sql .= "WHERE {$this->db->quoteName('c')}.{$this->db->quoteName($cartColumns['name'])}=:__cart_name_ ";
+        $sql .= "AND {$this->db->quoteName('c')}.{$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_";
 
         // delete all expired carts for specific user
         $this->deleteExpiredCarts();
@@ -412,7 +412,7 @@ class CartsUtil implements ICartsUtil
 
         return $this->db->delete(
             $this->tables[$this->carts_key],
-            "{$cartColumns['name']}=:__cart_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
+            "{$this->db->quoteName($cartColumns['name'])}=:__cart_name_ AND {$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_",
             [
                 '__cart_name_' => $cart_name,
                 '__cart_user_id_' => $this->user_id,
@@ -433,8 +433,8 @@ class CartsUtil implements ICartsUtil
 
         return $this->db->delete(
             $this->tables[$this->carts_key],
-            "{$cartColumns['user_id']}=:__cart_user_id_" .
-            "AND {$cartColumns['expire_at']}<:__cart_expired_",
+            "{$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_ " .
+            "AND {$this->db->quoteName($cartColumns['expire_at'])}<:__cart_expired_",
             [
                 '__cart_user_id_' => $this->user_id,
                 '__cart_expired_' => time(),
@@ -461,7 +461,8 @@ class CartsUtil implements ICartsUtil
             [
                 $cartColumns['name'] => $new_cart_name,
             ],
-            "{$cartColumns['name']}=:__cart_old_name_ AND {$cartColumns['user_id']}=:__cart_user_id_",
+            "{$this->db->quoteName($cartColumns['name'])}=:__cart_old_name_ " .
+            "AND {$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_",
             [
                 '__cart_old_name_' => $old_cart_name,
                 '__cart_user_id_' => $this->user_id,
@@ -481,8 +482,8 @@ class CartsUtil implements ICartsUtil
 
         $res = $this->db->getFrom(
             $this->tables[$this->product_property_key],
-            "{$productPropertyColumns['code']}=:__cart_item_code_ AND " .
-            "{$productPropertyColumns['is_available']}=:__cart_item_available_",
+            "{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ " .
+            "AND {$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_",
             $columns,
             [
                 '__cart_item_code_' => $item_code,
