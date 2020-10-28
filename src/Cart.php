@@ -39,23 +39,23 @@ class Cart implements ICart
 
     /**
      * Cart constructor.
-     * @param PDO|null $pdo_instance
      * @param ICookie $cookie_storage
-     * @param int $user_id
+     * @param PDO|null $pdo_instance
+     * @param int|null $user_id
      * @param array|null $config
      * @throws IDBException
      */
     public function __construct(
-        ?PDO $pdo_instance,
         ICookie $cookie_storage,
-        int $user_id,
+        PDO $pdo_instance = null,
+        int $user_id = null,
         ?array $config = null
     )
     {
         $this->storage = $cookie_storage;
 
         // if pdo connection is not null
-        if (!is_null($pdo_instance)) {
+        if (!is_null($pdo_instance) && !is_null($user_id)) {
             $this->cart_util = new CartsUtil($pdo_instance, $this, $user_id, $config);
         }
     }
@@ -287,6 +287,8 @@ class Cart implements ICart
         if (is_null($data)) return $this;
 
         // there is something there but we don't know what it is
+        // but assume that is an array and try to parse it to
+        // array form
         $data = json_decode($data, true);
 
         // it should be array or we have nothing to do with it
