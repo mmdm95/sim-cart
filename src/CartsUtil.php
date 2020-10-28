@@ -202,7 +202,7 @@ class CartsUtil implements ICartsUtil
         unset($extra_parameters[$cartColumns['created_at']]);
 
         // delete all expired carts for specific user
-        $this->deleteExpiredCarts($this->cart->getCartName());
+        $this->deleteExpiredCarts();
 
         $isUpdate = $this->db->count(
                 $this->tables[$this->carts_key],
@@ -349,7 +349,7 @@ class CartsUtil implements ICartsUtil
         $sql .= "AND {$this->db->quoteName('c')}.{$cartColumns['user_id']}=:__cart_user_id_";
 
         // delete all expired carts for specific user
-        $this->deleteExpiredCarts($this->cart->getCartName());
+        $this->deleteExpiredCarts();
 
         $stmt = $this->db->exec($sql, [
             '__cart_name_' => $this->cart->getCartName(),
