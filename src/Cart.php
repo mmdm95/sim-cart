@@ -40,24 +40,20 @@ class Cart implements ICart
     /**
      * Cart constructor.
      * @param ICookie $cookie_storage
-     * @param PDO|null $pdo_instance
+     * @param PDO $pdo_instance
      * @param int|null $user_id
      * @param array|null $config
      * @throws IDBException
      */
     public function __construct(
         ICookie $cookie_storage,
-        PDO $pdo_instance = null,
+        PDO $pdo_instance,
         int $user_id = null,
         ?array $config = null
     )
     {
         $this->storage = $cookie_storage;
-
-        // if pdo connection is not null
-        if (!is_null($pdo_instance)) {
-            $this->cart_util = new CartsUtil($pdo_instance, $this, $user_id, $config);
-        }
+        $this->cart_util = new CartsUtil($pdo_instance, $this, $user_id, $config);
     }
 
     /**
