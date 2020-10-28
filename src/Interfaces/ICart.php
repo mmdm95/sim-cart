@@ -106,9 +106,11 @@ interface ICart
 
     /**
      * @param string $item_code
+     * @param int $decimal_numbers
+     * @param bool $round
      * @return float
      */
-    public function discountedPercentage(string $item_code): float;
+    public function discountedPercentage(string $item_code, int $decimal_numbers = 2, bool $round = false): float;
 
     /**
      * @param int $decimal_numbers
@@ -116,6 +118,13 @@ interface ICart
      * @return float
      */
     public function totalDiscountedPercentage(int $decimal_numbers = 2, bool $round = false): float;
+
+    /**
+     * @param int $decimal_numbers
+     * @param bool $round
+     * @return float
+     */
+    public function totalDiscountedPercentageWithTax(int $decimal_numbers = 2, bool $round = false): float;
 
     /**
      * Store cart to defined storage

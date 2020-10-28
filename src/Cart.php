@@ -233,44 +233,36 @@ class Cart implements ICart
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function discountedPercentage(string $item_code): float
+    public function discountedPercentage(string $item_code, int $decimal_numbers = 2, bool $round = false): float
     {
+        // if there is no item with code $item_code,
+        // we don need calculate anything then
+        if (!$this->hasItemWithCode($item_code)) return 0.0;
+
         $item = $this->getItem($item_code);
         $price = (float)($item['price'] ?? 0.0);
         $discountedPrice = (float)($item['discounted_price'] ?? 0.0);
 
         // it should be == instead of ===
-        if (0 == $price) return 0;
+        if (0 == $price) return 0.0;
 
-        $priceDiff = abs($price - $discountedPrice);
-        return ($priceDiff / $price) * 100;
+        return $this->getPercentage($price, $discountedPrice, $decimal_numbers, $round);
     }
 
     /**
      * {@inheritdoc}
-     * @throws IDBException
      */
     public function totalDiscountedPercentage(int $decimal_numbers = 2, bool $round = false): float
     {
-        $items = $this->getItems();
-        $itemsLen = count($items);
+        return $this->getPercentage($this->totalPrice(), $this->totalDiscountedPrice(), $decimal_numbers, $round);
+    }
 
-        // is there is no item, we have 0 percentage discount
-        if (0 === $itemsLen) return 0.0;
-
-        $totalPercentage = 0.0;
-        foreach ($items as $code => $item) {
-            $totalPercentage += $this->discountedPercentage($code);
-        }
-
-        $totalPercentageAvg = number_format($totalPercentage / $itemsLen, $decimal_numbers);
-
-        // if it needed to round
-        if ($round) {
-            $totalPercentageAvg = round($totalPercentageAvg);
-        }
-
-        return $totalPercentageAvg;
+    /**
+     * {@inheritdoc}
+     */
+    public function totalDiscountedPercentageWithTax(int $decimal_numbers = 2, bool $round = false): float
+    {
+        return $this->getPercentage($this->totalPriceWithTax(), $this->totalDiscountedPriceWithTax(), $decimal_numbers, $round);
     }
 
     /**
@@ -346,14 +338,39 @@ class Cart implements ICart
         $total = 0.0;
         foreach ($this->getItems() as $item) {
             $amount = (float)($item[$key] ?? 0.0);
+
+            // if we have tax for item
             if ($calculate_tax) {
                 $amount += ((float)((float)($item['tax_rate'] ?? 0.0) * $amount)) / 100.0;
             }
+
+            // we have n times of amount for price
+            $amount = ($item['qnt'] ?? 0) * $amount;
 
             $total += $amount;
         }
 
         return $total;
+    }
+
+    /**
+     * @param $price
+     * @param $discount_price
+     * @param int $decimal_numbers
+     * @param bool $round
+     * @return float
+     */
+    protected function getPercentage($price, $discount_price, int $decimal_numbers = 2, bool $round = false): float
+    {
+        $percentage = ((abs($price - $discount_price)) / $price) * 100;
+        $percentage = number_format($percentage, $decimal_numbers);
+
+        // if it needed to round
+        if ($round) {
+            $percentage = round($percentage);
+        }
+
+        return $percentage;
     }
 
     /**
