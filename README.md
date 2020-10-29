@@ -387,6 +387,27 @@ $cart->utils()->save(
 )
 ```
 
+To get exception of max stored cart count, and database errors, put 
+your codes in `try {...} catch() {...}` block like:
+
+```php
+try {
+    // try to save or other thing
+    // ...
+    
+    $cart->utils()->save(1);
+} catch (\Sim\Cart\Exceptions\CartMaxCountException $e) {
+    // if cart count is at maximum count of it
+    // ...
+} catch (\Sim\Cart\Interfaces\IDBException $e) {
+    // database error
+    // ...
+} catch (\Sim\Crypt\Exceptions\CryptException $e) {
+    // encryption or decryption has error
+    // ...
+}
+```
+
 #### `fetch(bool $append_to_previous_items = false)`
 
 Fetch cart items from database and store them to provided cart class.
