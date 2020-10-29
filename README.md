@@ -178,7 +178,7 @@ $cookieStorage = new \Sim\Cookie\Cookie(
 ```php
 $cookieStorage = new \Sim\Cookie\Cookie(new \Sim\Crypt\Crypt($mainCryptKey, $assuredCryptKey));
 
-// we a user, so we don't pass it
+// we don't need a user, so we don't pass it
 $cart = new \Sim\Cart\Cart($pdo, $cookieStorage);
 
 // use cart methods
