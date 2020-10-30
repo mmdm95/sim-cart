@@ -233,10 +233,10 @@ class CartsUtil implements ICartsUtil
                 $status = $status && $this->db->insert(
                         $this->tables[$this->carts_key],
                         array_merge([
-                            $cartColumns['name'] => $this->cart->getCartName(),
-                            $cartColumns['user_id'] => $this->user_id,
-                            $cartColumns['created_at'] => time(),
-                            $cartColumns['expire_at'] => time() + $this->cart->getExpiration(),
+                            $this->db->quoteName($cartColumns['name']) => $this->cart->getCartName(),
+                            $this->db->quoteName($cartColumns['user_id']) => $this->user_id,
+                            $this->db->quoteName($cartColumns['created_at']) => time(),
+                            $this->db->quoteName($cartColumns['expire_at']) => time() + $this->cart->getExpiration(),
                         ], $extra_parameters)
                     );
             } else {
@@ -306,9 +306,9 @@ class CartsUtil implements ICartsUtil
                 $status = $status && $this->db->insert(
                         $this->tables[$this->cart_item_key],
                         [
-                            $cartItemColumns['cart_id'] => $cartId,
-                            $cartItemColumns['product_property_id'] => $productPropertyId,
-                            $cartItemColumns['qnt'] => $item['qnt'],
+                            $this->db->quoteName($cartItemColumns['cart_id']) => $cartId,
+                            $this->db->quoteName($cartItemColumns['product_property_id']) => $productPropertyId,
+                            $this->db->quoteName($cartItemColumns['qnt']) => $item['qnt'],
                         ]
                     );
 
@@ -459,7 +459,7 @@ class CartsUtil implements ICartsUtil
         return $this->db->update(
             $this->tables[$this->carts_key],
             [
-                $cartColumns['name'] => $new_cart_name,
+                $this->db->quoteName($cartColumns['name']) => $new_cart_name,
             ],
             "{$this->db->quoteName($cartColumns['name'])}=:__cart_old_name_ " .
             "AND {$this->db->quoteName($cartColumns['user_id'])}=:__cart_user_id_",
