@@ -499,9 +499,12 @@ class CartsUtil implements ICartsUtil
         if (!empty($res)) {
             foreach ($res as $k => $d) {
                 $productPropertyKey = array_search($k, $productPropertyColumns);
+                $productKey = array_search($k, $productColumns);
                 if ('id' !== $k) {
                     if (false !== $productPropertyKey) {
                         $newRes[$productPropertyKey] = $d;
+                    } elseif (false !== $productKey) {
+                        $newRes[$productKey] = $d;
                     } else {
                         $newRes[$k] = $d;
                     }
