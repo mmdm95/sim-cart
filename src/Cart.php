@@ -106,9 +106,9 @@ class Cart implements ICart
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function add(string $item_code, array $item_info = null)
+    public function add(string $item_code, ?array $item_info = null, array $columns = [])
     {
-        $item = $this->cart_util->getItem($item_code);
+        $item = $this->cart_util->getItem($item_code, $columns);
         if (!empty($item)) {
             $this->addItem($item_code, $item, $item_info);
         }

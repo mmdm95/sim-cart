@@ -67,11 +67,14 @@ interface ICartsUtil
     ): bool;
 
     /**
+     * It has [products] and [product_property] joined tables that
+     * are aliased [p] and [pp] respectively.
+     *
      * @param string $item_code
-     * @param string|array $columns
+     * @param array $columns
      * @return array
      */
-    public function getItem(string $item_code, $columns = '*'): array;
+    public function getItem(string $item_code, array $columns = ['pp.*']): array;
 
     /**
      * @param string $item_code

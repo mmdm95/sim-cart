@@ -34,9 +34,10 @@ interface ICart
     /**
      * @param string $item_code
      * @param array|null $item_info
+     * @param array $columns - It has [products] and [product_property] joined tables that are aliased [p] and [pp] respectively.
      * @return static
      */
-    public function add(string $item_code, array $item_info = null);
+    public function add(string $item_code, ?array $item_info = null, array $columns = []);
 
     /**
      * Check if item is added or it'll add it internally

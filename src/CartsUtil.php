@@ -474,22 +474,25 @@ class CartsUtil implements ICartsUtil
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function getItem(string $item_code, $columns = '*'): array
+    public function getItem(string $item_code, array $columns = ['pp.*']): array
     {
+        $productColumns = $this->config_parser->getTablesColumn($this->products_key);
         $productPropertyColumns = $this->config_parser->getTablesColumn($this->product_property_key);
 
-        if (!is_string($columns) && !is_array($columns)) $columns = '*';
+        if (empty($columns)) $columns = ['pp.*'];
 
-        $res = $this->db->getFrom(
-            $this->tables[$this->product_property_key],
-            "{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ " .
-            "AND {$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_",
-            $columns,
-            [
-                '__cart_item_code_' => $item_code,
-                '__cart_item_available_' => 1,
-            ]
-        );
+        $sql = "SELECT  {implode(',', $columns)} ";
+        $sql .= "FROM {$this->db->quoteName($this->tables[$this->product_property_key])} AS {$this->db->quoteName('pp')} ";
+        $sql .= "INNER JOIN {$this->db->quoteName($this->products_key)} AS {$this->db->quoteName('p')} ";
+        $sql .= "ON {$this->db->quoteName('p')}.{$this->db->quoteName($productColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['product_id'])} ";
+        $sql .= "WHERE {$this->db->quoteName('p')}.{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ ";
+        $sql .= "AND {$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_";
+
+        $stmt = $this->db->exec($sql, [
+            '__cart_item_code_' => $item_code,
+            '__cart_item_available_' => 1,
+        ]);
+        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $res = count($res) ? $res[0] : [];
         $newRes = [];
