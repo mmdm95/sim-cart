@@ -53,8 +53,8 @@ class ConfigParser
      * @var array
      */
     protected $table_aliases = [
-        'users', 'products', 'product_property',
-        'carts', 'cart_item'
+        'users', 'brands', 'products',
+        'product_property', 'carts', 'cart_item'
     ];
 
     /**

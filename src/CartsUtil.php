@@ -58,6 +58,11 @@ class CartsUtil implements ICartsUtil
     /**
      * @var string
      */
+    protected $brands_key = 'brands';
+
+    /**
+     * @var string
+     */
     protected $products_key = 'products';
 
     /**
@@ -476,21 +481,26 @@ class CartsUtil implements ICartsUtil
      */
     public function getItem(string $item_code, array $columns = ['pp.*']): array
     {
+        $brandColumns = $this->config_parser->getTablesColumn($this->brands_key);
         $productColumns = $this->config_parser->getTablesColumn($this->products_key);
         $productPropertyColumns = $this->config_parser->getTablesColumn($this->product_property_key);
 
         if (empty($columns)) $columns = ['pp.*'];
 
-        $sql = "SELECT  {implode(',', $columns)} ";
+        $sql = "SELECT  {$this->db->quoteNames($columns)} ";
         $sql .= "FROM {$this->db->quoteName($this->tables[$this->product_property_key])} AS {$this->db->quoteName('pp')} ";
         $sql .= "INNER JOIN {$this->db->quoteName($this->products_key)} AS {$this->db->quoteName('p')} ";
         $sql .= "ON {$this->db->quoteName('p')}.{$this->db->quoteName($productColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['product_id'])} ";
+        $sql .= "INNER JOIN {$this->db->quoteName($this->brands_key)} AS {$this->db->quoteName('b')} ";
+        $sql .= "ON {$this->db->quoteName('b')}.{$this->db->quoteName($brandColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['brand_id'])} ";
         $sql .= "WHERE {$this->db->quoteName('p')}.{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ ";
         $sql .= "AND {$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_";
+        $sql .= "AND {$this->db->quoteName('b')}.{$this->db->quoteName($productPropertyColumns['publish'])}=:__cart_item_brand_pub_";
 
         $stmt = $this->db->exec($sql, [
             '__cart_item_code_' => $item_code,
             '__cart_item_available_' => 1,
+            '__cart_item_brand_pub_' => 1,
         ]);
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -499,12 +509,15 @@ class CartsUtil implements ICartsUtil
         if (!empty($res)) {
             foreach ($res as $k => $d) {
                 $productPropertyKey = array_search($k, $productPropertyColumns);
+                $brandKey = array_search($k, $brandColumns);
                 $productKey = array_search($k, $productColumns);
                 if ('id' !== $k) {
                     if (false !== $productPropertyKey) {
                         $newRes[$productPropertyKey] = $d;
                     } elseif (false !== $productKey) {
                         $newRes[$productKey] = $d;
+                    } elseif (false !== $brandKey) {
+                        $newRes[$brandKey] = $d;
                     } else {
                         $newRes[$k] = $d;
                     }

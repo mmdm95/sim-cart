@@ -422,6 +422,31 @@ class DB
     }
 
     /**
+     * @param $names
+     * @return array|string
+     */
+    public function quoteNames($names)
+    {
+        if ('*' === $names) {
+            return $names;
+        }
+
+        if (is_string($names) && false === strpos($names, $this->quote_arr[0])) {
+            return $this->quoteName($names);
+        }
+
+        if (is_array($names)) {
+            foreach ($names as &$name) {
+                if (is_string($name) && false === strpos($name, $this->quote_arr[0])) {
+                    $name = $this->quoteName($name);
+                }
+            }
+        }
+
+        return $names;
+    }
+
+    /**
      * @throws IDBException
      */
     public function changeDBCollation(): void
@@ -500,31 +525,6 @@ class DB
         }
 
         return $stmt->bindValue($key, $val);
-    }
-
-    /**
-     * @param $names
-     * @return array|string
-     */
-    protected function quoteNames($names)
-    {
-        if ('*' === $names) {
-            return $names;
-        }
-
-        if (is_string($names) && false === strpos($names, $this->quote_arr[0])) {
-            return $this->quoteName($names);
-        }
-
-        if (is_array($names)) {
-            foreach ($names as &$name) {
-                if (is_string($name) && false === strpos($name, $this->quote_arr[0])) {
-                    $name = $this->quoteName($name);
-                }
-            }
-        }
-
-        return $names;
     }
 
     /**

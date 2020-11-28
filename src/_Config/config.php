@@ -39,6 +39,17 @@ return [
                 'id' => 'INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
             ],
         ],
+        'brands' => [
+            'table_name' => 'brands',
+            'columns' => [
+                'id' => 'id',
+                'publish' => 'publish',
+            ],
+            'types' => [
+                'id' => 'INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
+                'publish' => 'TINYINT(1) UNSIGNED NOT NULL DEFAULT 1',
+            ],
+        ],
         'products' => [
             'table_name' => 'products',
             'columns' => [
@@ -54,6 +65,7 @@ return [
                 'id' => 'id',
                 'code' => 'code',
                 'product_id' => 'product_id',
+                'brand_id' => 'brand_id',
                 'stock_count' => 'stock_count',
                 'max_cart_count' => 'max_cart_count',
                 'price' => 'price',
@@ -65,6 +77,7 @@ return [
                 'id' => 'INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
                 'code' => 'VARCHAR(20) NOT NULL',
                 'product_id' => 'INT(11) UNSIGNED NOT NULL',
+                'brand_id' => 'INT(11) UNSIGNED NOT NULL',
                 'stock_count' => 'INT(11) UNSIGNED NOT NULL',
                 'max_cart_count' => 'INT(11) UNSIGNED NOT NULL',
                 'price' => 'DECIMAL(23, 3) UNSIGNED NOT NULL',
@@ -75,6 +88,7 @@ return [
             'constraints' => [
                 'ADD CONSTRAINT UC_Code UNIQUE (code)',
                 'ADD CONSTRAINT fk_pp_p FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE',
+                'ADD CONSTRAINT fk_pp_b FOREIGN KEY(brand_id) REFERENCES brands(id) ON DELETE CASCADE ON UPDATE CASCADE',
             ],
         ],
         'carts' => [
