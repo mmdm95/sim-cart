@@ -226,6 +226,10 @@ class Cart implements ICart
         $price = (float)($item['price'] ?? 0.0);
         $discountedPrice = (float)($item['discounted_price'] ?? 0.0);
 
+        if (!$this->isDiscountValid($item['discount_until'])) {
+            $discountedPrice = $price;
+        }
+
         // it should be == instead of ===
         if (0 == $price) return 0.0;
 
@@ -336,7 +340,13 @@ class Cart implements ICart
     {
         $total = 0.0;
         foreach ($this->getItems() as $item) {
+            if(!is_scalar($item[$key])) return 0.0;
+
             $amount = (float)($item[$key] ?? 0.0);
+
+            if ('discounted_price' === $key && !$this->isDiscountValid($item['discount_until'])) {
+                $amount = (float)($item['price'] ?? 0.0);
+            }
 
             // if we have tax for item
             if ($calculate_tax) {
@@ -361,7 +371,11 @@ class Cart implements ICart
      */
     protected function getPercentage($price, $discount_price, int $decimal_numbers = 2, bool $round = false): float
     {
-        $percentage = ((abs($price - $discount_price)) / $price) * 100;
+        if ($price == $discount_price) {
+            $percentage = 0.0;
+        } else {
+            $percentage = ((abs($price - $discount_price)) / $price) * 100;
+        }
         $percentage = number_format($percentage, $decimal_numbers);
 
         // if it needed to round
@@ -370,6 +384,18 @@ class Cart implements ICart
         }
 
         return $percentage;
+    }
+
+    /**
+     * @param $discount_until
+     * @return bool
+     */
+    protected function isDiscountValid($discount_until): bool
+    {
+        if (empty($discount_until) || $discount_until >= time()) {
+            return true;
+        }
+        return false;
     }
 
     /**
