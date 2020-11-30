@@ -359,7 +359,7 @@ class Cart implements ICart
             $total += $amount;
         }
 
-        return $total;
+        return (float)$total;
     }
 
     /**
@@ -371,7 +371,7 @@ class Cart implements ICart
      */
     protected function getPercentage($price, $discount_price, int $decimal_numbers = 2, bool $round = false): float
     {
-        if ($price == $discount_price) {
+        if ($price == 0 || $price == $discount_price) {
             $percentage = 0.0;
         } else {
             $percentage = ((abs($price - $discount_price)) / $price) * 100;
@@ -383,7 +383,7 @@ class Cart implements ICart
             $percentage = round($percentage);
         }
 
-        return $percentage;
+        return (float)$percentage;
     }
 
     /**
