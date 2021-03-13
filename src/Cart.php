@@ -340,7 +340,7 @@ class Cart implements ICart
     {
         $total = 0.0;
         foreach ($this->getItems() as $item) {
-            if(!is_scalar($item[$key])) return 0.0;
+            if (!is_scalar($item[$key])) return 0.0;
 
             $amount = (float)($item[$key] ?? 0.0);
 
@@ -415,10 +415,11 @@ class Cart implements ICart
                 $item_info['qnt'] > $item['stock_count'] ||
                 $item_info['qnt'] > $item['max_cart_count']
             ) {
+                if ($item_info['qnt'] > $item['max_cart_count']) {
+                    $item_info['qnt'] = (int)$item['max_cart_count'];
+                }
                 if ($item_info['qnt'] > $item['stock_count']) {
                     $item_info['qnt'] = (int)$item['stock_count'];
-                } else {
-                    $item_info['qnt'] = (int)$item['max_cart_count'];
                 }
             }
         }
