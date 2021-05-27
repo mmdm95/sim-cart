@@ -495,7 +495,7 @@ class CartsUtil implements ICartsUtil
         $sql .= "ON {$this->db->quoteName('b')}.{$this->db->quoteName($brandColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['brand_id'])} ";
         $sql .= "WHERE {$this->db->quoteName('p')}.{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ ";
         $sql .= "AND {$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_";
-        $sql .= "AND {$this->db->quoteName('b')}.{$this->db->quoteName($productPropertyColumns['publish'])}=:__cart_item_brand_pub_";
+        $sql .= "AND {$this->db->quoteName('b')}.{$this->db->quoteName($brandColumns['publish'])}=:__cart_item_brand_pub_";
 
         $stmt = $this->db->exec($sql, [
             '__cart_item_code_' => $item_code,
