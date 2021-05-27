@@ -487,7 +487,11 @@ class CartsUtil implements ICartsUtil
 
         if (empty($columns)) $columns = ['pp.*'];
 
-        $sql = "SELECT  {$this->db->quoteNames($columns)} ";
+        foreach ($columns as &$col) {
+            $col = $this->db->quoteNames($col);
+        }
+
+        $sql = "SELECT " . implode(',', $columns) . " ";
         $sql .= "FROM {$this->db->quoteName($this->tables[$this->product_property_key])} AS {$this->db->quoteName('pp')} ";
         $sql .= "INNER JOIN {$this->db->quoteName($this->products_key)} AS {$this->db->quoteName('p')} ";
         $sql .= "ON {$this->db->quoteName('p')}.{$this->db->quoteName($productColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['product_id'])} ";
