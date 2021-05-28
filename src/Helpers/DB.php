@@ -410,7 +410,9 @@ class DB
         if (false !== strpos($name, '.')) {
             $parts = explode('.', $name);
             foreach ($parts as &$part) {
-                $part = self::quoteSingleName($part);
+                if ($part !== '*') {
+                    $part = self::quoteSingleName($part);
+                }
             }
             return implode('.', $parts);
         }
