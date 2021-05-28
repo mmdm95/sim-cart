@@ -54,9 +54,11 @@ return [
             'table_name' => 'products',
             'columns' => [
                 'id' => 'id',
+                'brand_id' => 'brand_id',
             ],
             'types' => [
                 'id' => 'INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
+                'brand_id' => 'INT(11) UNSIGNED NOT NULL',
             ],
         ],
         'product_property' => [
@@ -65,7 +67,6 @@ return [
                 'id' => 'id',
                 'code' => 'code',
                 'product_id' => 'product_id',
-                'brand_id' => 'brand_id',
                 'stock_count' => 'stock_count',
                 'max_cart_count' => 'max_cart_count',
                 'price' => 'price',
@@ -78,7 +79,6 @@ return [
                 'id' => 'INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
                 'code' => 'VARCHAR(20) NOT NULL',
                 'product_id' => 'INT(11) UNSIGNED NOT NULL',
-                'brand_id' => 'INT(11) UNSIGNED NOT NULL',
                 'stock_count' => 'INT(11) UNSIGNED NOT NULL',
                 'max_cart_count' => 'INT(11) UNSIGNED NOT NULL',
                 'price' => 'DECIMAL(23, 3) UNSIGNED NOT NULL',
