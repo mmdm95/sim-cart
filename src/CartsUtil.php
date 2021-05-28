@@ -498,7 +498,7 @@ class CartsUtil implements ICartsUtil
         $sql .= "INNER JOIN {$this->db->quoteName($this->brands_key)} AS {$this->db->quoteName('b')} ";
         $sql .= "ON {$this->db->quoteName('b')}.{$this->db->quoteName($brandColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['brand_id'])} ";
         $sql .= "WHERE {$this->db->quoteName('p')}.{$this->db->quoteName($productPropertyColumns['code'])}=:__cart_item_code_ ";
-        $sql .= "AND {$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available_";
+        $sql .= "AND {$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['is_available'])}=:__cart_item_available ";
         $sql .= "AND {$this->db->quoteName('b')}.{$this->db->quoteName($brandColumns['publish'])}=:__cart_item_brand_pub_";
 
         $stmt = $this->db->exec($sql, [
