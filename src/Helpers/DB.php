@@ -408,13 +408,11 @@ class DB
     {
         $name = trim(explode(' AS ', $name)[0]);
         if (false !== strpos($name, '.')) {
-            return implode(
-                '.',
-                array_map(
-                    'self::quoteSingleName',
-                    explode('.', $name)
-                )
-            );
+            $parts = explode('.', $name);
+            foreach ($parts as &$part) {
+                $part = self::quoteSingleName($part);
+            }
+            return implode('.', $parts);
         }
 
         $name = str_replace(self::$quote_find_static, self::$quote_replace_static, $name);
