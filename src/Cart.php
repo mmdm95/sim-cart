@@ -123,6 +123,7 @@ class Cart implements ICart
     {
         $item = $this->getItem($item_code);
         $this->addItem($item_code, $item, $item_info);
+        return $this;
     }
 
     /**
