@@ -7,14 +7,13 @@ use Sim\Cart\Interfaces\ICart;
 use Sim\Cart\Interfaces\ICartsUtil;
 use Sim\Cart\Interfaces\IDBException;
 use Sim\Cookie\Interfaces\ICookie;
-use Sim\Cookie\SetCookie;
 
 class Cart implements ICart
 {
     /**
-     * @var ICartsUtil|null
+     * @var ICartsUtil
      */
-    protected $cart_util = null;
+    protected $cart_util;
 
     /**
      * @var array - array of ICartItem
@@ -36,6 +35,11 @@ class Cart implements ICart
      * @var string
      */
     protected $cart_name = 'default';
+
+    /**
+     * @var string
+     */
+    protected $session_key = '__sim_cart_sess_key_unique';
 
     /**
      * Cart constructor.
@@ -97,7 +101,7 @@ class Cart implements ICart
     /**
      * {@inheritdoc}
      */
-    public function utils(): ?ICartsUtil
+    public function utils(): ICartsUtil
     {
         return $this->cart_util;
     }
@@ -258,16 +262,24 @@ class Cart implements ICart
      */
     public function store()
     {
-        $setCookie = new SetCookie(
-            $this->getHashedName(),
-            json_encode($this->getItems()),
-            time() + $this->getExpiration(),
-            '/',
-            null,
-            null,
-            true
-        );
-        $this->storage->set($setCookie);
+        $items = [];
+        foreach ($this->getItems() as $item) {
+            $items[]['code'] = [
+                'qnt' => $item['qnt'],
+            ];
+        }
+
+        // store items to storage(here is cookie) for future usage
+        $this->storage
+            ->set($this->getHashedName())
+            ->setValue(json_encode($items))
+            ->setExpiration(\time() + $this->getExpiration())
+            ->setPath('/')
+            ->setHttpOnly(true);
+
+        // also store items to session to reduce database connection to fetch items
+        $_SESSION[$this->session_key] = $this->getItems();
+
         return $this;
     }
 
@@ -275,24 +287,49 @@ class Cart implements ICart
      * {@inheritdoc}
      * @throws IDBException
      */
-    public function restore()
+    public function restore(bool $validate = false)
     {
-        $data = $this->storage->get($this->getHashedName());
+        $sess = $_SESSION[$this->session_key] ?? [];
+        if (!empty($sess) && \is_array($sess)) {
+            // we don't know if this session is ok or not so we just
+            // return session keys that value of them is an array
+            // -----
+            // To validate this session, send true as first argument
+            if ($validate) {
+                foreach ($sess as $code => $info) {
+                    // add it to cart class
+                    $this->add($code, \is_array($info) ? $info : []);
+                }
+            } else {
+                $newSess = [];
+                foreach ($sess as $code => $info) {
+                    if (\is_array($info)) {
+                        $newSess[$code] = $info;
+                    }
+                }
+                return $newSess;
+            }
+        } else {
+            $data = $this->storage->get($this->getHashedName());
 
-        // if there is a cookie value
-        if (is_null($data)) return $this;
+            // if there is a cookie value
+            if (\is_null($data)) return $this;
 
-        // there is something there but we don't know what it is
-        // but assume that is an array and try to parse it to
-        // array form
-        $data = json_decode($data, true);
+            // there is something there but we don't know what it is
+            // but assume that is an array and try to parse it to
+            // array form
+            $data = \json_decode($data, true);
 
-        // it should be array or we have nothing to do with it
-        if (!is_array($data)) return $this;
+            // it should be array or we have nothing to do with it and it'll be removed
+            if (!\is_array($data)) {
+                $this->storage->remove($this->getHashedName());
+                return $this;
+            }
 
-        // add it to cart class
-        foreach ($data as $code => $info) {
-            $this->add($code, is_array($info) ? $info : []);
+            // add it to cart class
+            foreach ($data as $code => $info) {
+                $this->add($code, \is_array($info) ? $info : []);
+            }
         }
 
         return $this;
@@ -313,7 +350,7 @@ class Cart implements ICart
      */
     protected function getHashedName(): string
     {
-        return md5($this->getCartName() . '-' . $this->utils()->getUserId());
+        return \md5($this->getCartName() . '-' . $this->utils()->getUserId());
     }
 
     /**
@@ -326,7 +363,7 @@ class Cart implements ICart
         $item_info = $this->normalizeQuantity($item, $item_info);
         if ($item_info['qnt'] > 0) {
             $item['qnt'] = $item_info['qnt'];
-            $this->items[$item_code] = array_merge($item_info, $item);
+            $this->items[$item_code] = \array_merge($item_info, $item);
         } else {
             $this->remove($item_code);
         }
@@ -341,7 +378,7 @@ class Cart implements ICart
     {
         $total = 0.0;
         foreach ($this->getItems() as $item) {
-            if (!is_scalar($item[$key])) return 0.0;
+            if (!\is_scalar($item[$key])) return 0.0;
 
             $amount = (float)($item[$key] ?? 0.0);
 
@@ -375,13 +412,13 @@ class Cart implements ICart
         if ($price == 0 || $price == $discount_price) {
             $percentage = 0.0;
         } else {
-            $percentage = ((abs($price - $discount_price)) / $price) * 100;
+            $percentage = ((\abs($price - $discount_price)) / $price) * 100;
         }
-        $percentage = number_format($percentage, $decimal_numbers);
+        $percentage = \number_format($percentage, $decimal_numbers);
 
         // if it needed to round
         if ($round) {
-            $percentage = round($percentage);
+            $percentage = \round($percentage);
         }
 
         return (float)$percentage;
@@ -393,10 +430,7 @@ class Cart implements ICart
      */
     protected function isDiscountValid($discount_until): bool
     {
-        if (empty($discount_until) || $discount_until >= time()) {
-            return true;
-        }
-        return false;
+        return empty($discount_until) || $discount_until >= \time();
     }
 
     /**

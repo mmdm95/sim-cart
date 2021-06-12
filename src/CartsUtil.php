@@ -95,13 +95,13 @@ class CartsUtil implements ICartsUtil
 
         // set cart and user id
         $this->cart = $cart;
-        if (!is_null($user_id)) {
+        if (!\is_null($user_id)) {
             $this->setUserId($user_id);
         }
 
         // load default config from _Config dir
         $this->default_config = include __DIR__ . '/_Config/config.php';
-        if (!is_null($config)) {
+        if (!\is_null($config)) {
             $this->setConfig($config);
         } else {
             $this->setConfig($this->default_config);
@@ -212,7 +212,7 @@ class CartsUtil implements ICartsUtil
         $isUpdate = $this->db->count(
                 $this->tables[$this->carts_key],
                 $where,
-                array_merge($bindValues, $bind_values)
+                \array_merge($bindValues, $bind_values)
             ) > 0;
 
         if ($isUpdate) {
@@ -222,7 +222,7 @@ class CartsUtil implements ICartsUtil
                         $this->tables[$this->carts_key],
                         $extra_parameters,
                         $where,
-                        array_merge($bindValues, $bind_values)
+                        \array_merge($bindValues, $bind_values)
                     );
             }
         } else {
@@ -237,11 +237,11 @@ class CartsUtil implements ICartsUtil
                 // insert to main cart table
                 $status = $status && $this->db->insert(
                         $this->tables[$this->carts_key],
-                        array_merge([
+                        \array_merge([
                             $this->db->quoteName($cartColumns['name']) => $this->cart->getCartName(),
                             $this->db->quoteName($cartColumns['user_id']) => $this->user_id,
-                            $this->db->quoteName($cartColumns['created_at']) => time(),
-                            $this->db->quoteName($cartColumns['expire_at']) => time() + $this->cart->getExpiration(),
+                            $this->db->quoteName($cartColumns['created_at']) => \time(),
+                            $this->db->quoteName($cartColumns['expire_at']) => \time() + $this->cart->getExpiration(),
                         ], $extra_parameters)
                     );
             } else {
@@ -262,7 +262,7 @@ class CartsUtil implements ICartsUtil
                 $this->tables[$this->carts_key],
                 $where,
                 $cartColumns['id'],
-                array_merge([
+                \array_merge([
                     '__cart_name_' => $extra_parameters[$cartColumns['name']] ?? $this->cart->getCartName(),
                     '__cart_user_id_' => $this->user_id,
                 ], $bind_values)
@@ -295,7 +295,7 @@ class CartsUtil implements ICartsUtil
                     $ppBindValues[$k] = $item[$column];
                 }
             }
-            $ppWhere = trim($ppWhere, 'AND ');
+            $ppWhere = \trim($ppWhere, 'AND ');
 
             $productProperty = $this->db->getFrom(
                 $this->tables[$this->product_property_key],
@@ -305,7 +305,7 @@ class CartsUtil implements ICartsUtil
             );
 
             // if there is a product with specific property
-            if (count($productProperty)) {
+            if (\count($productProperty)) {
                 // get first product id
                 $productPropertyId = $productProperty[0][$productPropertyColumns['id']];
                 $status = $status && $this->db->insert(
@@ -367,7 +367,7 @@ class CartsUtil implements ICartsUtil
             $this->cart->clearItems();
         }
 
-        if (count($cartResult)) {
+        if (\count($cartResult)) {
             foreach ($cartResult as $key => $cartItem) {
                 $newCartItem = [];
                 $newCartItem['stock_count'] = $cartItem['stock_count'];
@@ -377,7 +377,7 @@ class CartsUtil implements ICartsUtil
                 $newCartItem['qnt'] = $cartItem['qnt'];
 
                 // get extra properties and set them to cart item
-                $diff = array_diff_key($cartItem, [
+                $diff = \array_diff_key($cartItem, [
                     'stock_count' => $cartItem['stock_count'],
                     'max_cart_count' => $cartItem['max_cart_count'],
                     'price' => $cartItem['price'],
@@ -385,7 +385,7 @@ class CartsUtil implements ICartsUtil
                     'qnt' => $cartItem['qnt'],
                 ]);
                 foreach ($diff as $k => $d) {
-                    $productPropertyKey = array_search($k, $productPropertyColumns);
+                    $productPropertyKey = \array_search($k, $productPropertyColumns);
                     if ('id' !== $k && false !== $productPropertyKey) {
                         $newCartItem[$productPropertyKey] = $d;
                     }
@@ -393,7 +393,7 @@ class CartsUtil implements ICartsUtil
 
                 // if we have item in cart, we should merge new and previous item together
                 if ($this->cart->hasItemWithCode($cartItem['code'])) {
-                    $newCartItem = array_merge($this->cart->getItem($cartItem['code']), $newCartItem);
+                    $newCartItem = \array_merge($this->cart->getItem($cartItem['code']), $newCartItem);
                 }
 
                 // add cart item to cart collection
@@ -442,7 +442,7 @@ class CartsUtil implements ICartsUtil
             "AND {$this->db->quoteName($cartColumns['expire_at'])}<:__cart_expired_",
             [
                 '__cart_user_id_' => $this->user_id,
-                '__cart_expired_' => time(),
+                '__cart_expired_' => \time(),
             ]
         );
     }
@@ -491,7 +491,7 @@ class CartsUtil implements ICartsUtil
             $col = $this->db->quoteNames($col);
         }
 
-        $sql = "SELECT " . implode(',', $columns) . " ";
+        $sql = "SELECT " . \implode(',', $columns) . " ";
         $sql .= "FROM {$this->db->quoteName($this->tables[$this->product_property_key])} AS {$this->db->quoteName('pp')} ";
         $sql .= "INNER JOIN {$this->db->quoteName($this->products_key)} AS {$this->db->quoteName('p')} ";
         $sql .= "ON {$this->db->quoteName('p')}.{$this->db->quoteName($productColumns['id'])}={$this->db->quoteName('pp')}.{$this->db->quoteName($productPropertyColumns['product_id'])} ";
@@ -508,13 +508,13 @@ class CartsUtil implements ICartsUtil
         ]);
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $res = count($res) ? $res[0] : [];
+        $res = \count($res) ? $res[0] : [];
         $newRes = [];
         if (!empty($res)) {
             foreach ($res as $k => $d) {
-                $productPropertyKey = array_search($k, $productPropertyColumns);
-                $brandKey = array_search($k, $brandColumns);
-                $productKey = array_search($k, $productColumns);
+                $productPropertyKey = \array_search($k, $productPropertyColumns);
+                $brandKey = \array_search($k, $brandColumns);
+                $productKey = \array_search($k, $productColumns);
                 if ('id' !== $k) {
                     if (false !== $productPropertyKey) {
                         $newRes[$productPropertyKey] = $d;

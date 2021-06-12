@@ -27,9 +27,9 @@ interface ICart
     public function getExpiration(): int;
 
     /**
-     * @return ICartsUtil|null
+     * @return ICartsUtil
      */
-    public function utils(): ?ICartsUtil;
+    public function utils(): ICartsUtil;
 
     /**
      * @param string $item_code
@@ -137,9 +137,10 @@ interface ICart
     /**
      * Restore stored data in storage
      *
+     * @param bool $validate - Works with sessions only because cookies will validate automatically
      * @return static
      */
-    public function restore();
+    public function restore(bool $validate = false);
 
     /**
      * @return static
