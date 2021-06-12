@@ -18,6 +18,6 @@
   "require": {
     "ext-pdo": "*",
     "ext-json": "*",
-    "mmdm/sim-cookie": "^1.0"
+    "mmdm/sim-cookie": "^2.0"
   }
 }
