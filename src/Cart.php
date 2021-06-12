@@ -275,7 +275,8 @@ class Cart implements ICart
             ->setValue(json_encode($items))
             ->setExpiration(\time() + $this->getExpiration())
             ->setPath('/')
-            ->setHttpOnly(true);
+            ->setHttpOnly(true)
+            ->save();
 
         // also store items to session to reduce database connection to fetch items
         $_SESSION[$this->session_key] = $this->getItems();
