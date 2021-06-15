@@ -302,13 +302,12 @@ class Cart implements ICart
                     $this->add($code, \is_array($info) ? $info : []);
                 }
             } else {
-                $newSess = [];
+                $this->items = [];
                 foreach ($sess as $code => $info) {
                     if (\is_array($info)) {
-                        $newSess[$code] = $info;
+                        $this->items[$code] = $info;
                     }
                 }
-                return $newSess;
             }
         } else {
             $data = $this->storage->get($this->getHashedName());
