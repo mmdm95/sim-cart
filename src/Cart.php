@@ -341,6 +341,7 @@ class Cart implements ICart
     public function destroy()
     {
         $this->storage->remove($this->getHashedName());
+        unset($_SESSION[$this->session_key]);
         $this->clearItems();
         return $this;
     }
