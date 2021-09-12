@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14f2fc61750759aabb10026e2a7d034a",
+    "content-hash": "982b7f292741d682aba34e077dc1cf74",
     "packages": [
         {
             "name": "mmdm/sim-cookie",
-            "version": "v2.0.1",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mmdm95/sim-cookie.git",
-                "reference": "ddbf67440929b5d2a752bfa741f560c952c8bbf9"
+                "reference": "361340bbcd75941f47b082bf8399bfa7de0a88ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mmdm95/sim-cookie/zipball/ddbf67440929b5d2a752bfa741f560c952c8bbf9",
-                "reference": "ddbf67440929b5d2a752bfa741f560c952c8bbf9",
+                "url": "https://api.github.com/repos/mmdm95/sim-cookie/zipball/361340bbcd75941f47b082bf8399bfa7de0a88ea",
+                "reference": "361340bbcd75941f47b082bf8399bfa7de0a88ea",
                 "shasum": ""
             },
             "require": {
@@ -45,9 +45,9 @@
             "description": "A simple yet nice cookie management library",
             "support": {
                 "issues": "https://github.com/mmdm95/sim-cookie/issues",
-                "source": "https://github.com/mmdm95/sim-cookie/tree/v2.0.1"
+                "source": "https://github.com/mmdm95/sim-cookie/tree/v3.0.0"
             },
-            "time": "2021-04-04T05:38:02+00:00"
+            "time": "2021-09-12T19:44:25+00:00"
         },
         {
             "name": "mmdm/sim-crypt",
