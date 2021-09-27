@@ -364,7 +364,7 @@ class Cart implements ICart
         $item_info = $this->normalizeQuantity($item, $item_info);
         if ($item_info['qnt'] > 0) {
             $item['qnt'] = $item_info['qnt'];
-            $this->items[$item_code] = \array_merge($item_info, $item);
+            $this->items[$item_code] = \array_replace_recursive($item_info, $item);
         } else {
             $this->remove($item_code);
         }
